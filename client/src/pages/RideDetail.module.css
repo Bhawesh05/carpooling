@@ -1,0 +1,122 @@
+.page {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.route {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.arrow {
+  font-size: 1.5rem;
+  color: #aaa;
+}
+
+.city {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.5px;
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.notes,
+.driver {
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.phone {
+  color: #777;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.bookBtn {
+  width: 100%;
+  padding: 0.85rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+
+.bookBtn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.bookBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.success {
+  background: #f0fdf4;
+  color: #16a34a;
+  padding: 0.65rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #bbf7d0;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.error {
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 0.65rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.full {
+  text-align: center;
+  color: #888;
+  padding: 1rem;
+  font-size: 0.9rem;
+}
+
+.msg {
+  text-align: center;
+  padding: 4rem;
+  color: #888;
+}
