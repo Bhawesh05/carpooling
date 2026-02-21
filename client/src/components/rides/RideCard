@@ -1,0 +1,37 @@
+import React from "react";
+import { Link } from "react-router-dom";
+import styles from "./RideCard.module.css";
+
+const RideCard = ({ ride }) => {
+  const rideDate = new Date(ride.date).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  return (
+    <div className={styles.card}>
+      <div className={styles.route}>
+        <span className={styles.city}>{ride.from}</span>
+        <span className={styles.arrow}>→</span>
+        <span className={styles.city}>{ride.to}</span>
+      </div>
+
+      <div className={styles.details}>
+        <span>{rideDate}</span>
+        <span>{ride.time}</span>
+        <span>{ride.seatsLeft} seats left</span>
+      </div>
+
+      <div className={styles.footer}>
+        <span className={styles.price}>₹{ride.pricePerSeat} / seat</span>
+        <span className={styles.driver}>by {ride.driver?.name || "Driver"}</span>
+        <Link to={`/rides/${ride._id}`} className={styles.viewBtn}>
+          View Details
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+export default RideCard;
