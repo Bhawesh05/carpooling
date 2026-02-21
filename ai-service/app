@@ -1,0 +1,65 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import math
+
+app = Flask(__name__)
+CORS(app)
+
+# very simple fare estimator
+# in a real app you'd use a trained model or Google Maps Distance Matrix API
+# here we use a linear formula: base fare + (distance * rate) + (seats * small fee)
+
+BASE_FARE = 30  # flat base in rupees
+RATE_PER_KM = 5  # per km
+SEAT_SURCHARGE = 10  # per extra seat
+
+
+def estimate_distance_km(from_city, to_city):
+    """
+    Dummy distance estimator - just uses string hashing to give consistent results.
+    In production, swap this for the Google Maps Distance Matrix API call.
+    """
+    combined = from_city.lower().strip() + to_city.lower().strip()
+    # give a believable distance between 20 and 400 km
+    hash_val = sum(ord(c) for c in combined)
+    distance = 20 + (hash_val % 380)
+    return distance
+
+
+@app.route("/estimate-fare", methods=["GET"])
+def estimate_fare():
+    from_city = request.args.get("from", "")
+    to_city = request.args.get("to", "")
+    seats = int(request.args.get("seats", 1))
+
+    if not from_city or not to_city:
+        return jsonify({"error": "from and to are required"}), 400
+
+    distance = estimate_distance_km(from_city, to_city)
+
+    # linear regression style formula
+    fare = BASE_FARE + (distance * RATE_PER_KM) + (seats * SEAT_SURCHARGE)
+
+    # round to nearest 10 to look more natural
+    fare = math.ceil(fare / 10) * 10
+
+    return jsonify({
+        "from": from_city,
+        "to": to_city,
+        "estimatedDistanceKm": distance,
+        "suggestedFare": fare,
+        "breakdown": {
+            "baseFare": BASE_FARE,
+            "distanceCost": distance * RATE_PER_KM,
+            "seatSurcharge": seats * SEAT_SURCHARGE
+        }
+    })
+
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"})
+
+
+if __name__ == "__main__":
+    app.run(port=8000, debug=True)
