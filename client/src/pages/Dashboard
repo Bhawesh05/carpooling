@@ -1,0 +1,137 @@
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import api from "../utils/api";
+import { useAuth } from "../context/AuthContext";
+import styles from "./Dashboard.module.css";
+
+const Dashboard = () => {
+  const { user } = useAuth();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (user.role === "driver") {
+          const { data: rides } = await api.get("/rides/my");
+          setData(rides);
+        } else {
+          const { data: bookings } = await api.get("/bookings/me");
+          setData(bookings);
+        }
+      } catch (err) {
+        console.error("Dashboard fetch error");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [user.role]);
+
+  const cancelBooking = async (bookingId) => {
+    if (!window.confirm("Cancel this booking?")) return;
+    try {
+      await api.delete(`/bookings/${bookingId}`);
+      setData(data.filter((b) => b._id !== bookingId));
+    } catch {
+      alert("Could not cancel booking");
+    }
+  };
+
+  const cancelRide = async (rideId) => {
+    if (!window.confirm("Cancel this ride? All bookings will be affected.")) return;
+    try {
+      await api.delete(`/rides/${rideId}`);
+      setData(data.filter((r) => r._id !== rideId));
+    } catch {
+      alert("Could not cancel ride");
+    }
+  };
+
+  if (loading) return <p className={styles.msg}>Loading your dashboard...</p>;
+
+  return (
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <div>
+          <h2>Hello, {user.name}</h2>
+          <p className={styles.role}>{user.role === "driver" ? "Driver Account" : "Passenger Account"}</p>
+        </div>
+        {user.role === "driver" && (
+          <Link to="/post-ride" className={styles.postBtn}>
+            + Post a Ride
+          </Link>
+        )}
+      </div>
+
+      <h3 className={styles.sectionTitle}>
+        {user.role === "driver" ? "Your Posted Rides" : "Your Bookings"}
+      </h3>
+
+      {data.length === 0 && (
+        <div className={styles.empty}>
+          <p>Nothing here yet.</p>
+          {user.role === "driver" ? (
+            <Link to="/post-ride">Post your first ride</Link>
+          ) : (
+            <Link to="/rides">Find a ride to book</Link>
+          )}
+        </div>
+      )}
+
+      <div className={styles.list}>
+        {user.role === "driver"
+          ? data.map((ride) => (
+              <div key={ride._id} className={styles.item}>
+                <div className={styles.itemRoute}>
+                  {ride.from} → {ride.to}
+                </div>
+                <div className={styles.itemMeta}>
+                  <span>{new Date(ride.date).toLocaleDateString()}</span>
+                  <span>{ride.time}</span>
+                  <span>{ride.seatsLeft}/{ride.seats} seats left</span>
+                  <span>₹{ride.pricePerSeat}/seat</span>
+                  <span className={`${styles.badge} ${styles[ride.status]}`}>
+                    {ride.status}
+                  </span>
+                </div>
+                {ride.status === "active" && (
+                  <button
+                    className={styles.cancelBtn}
+                    onClick={() => cancelRide(ride._id)}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            ))
+          : data.map((booking) => (
+              <div key={booking._id} className={styles.item}>
+                <div className={styles.itemRoute}>
+                  {booking.ride?.from} → {booking.ride?.to}
+                </div>
+                <div className={styles.itemMeta}>
+                  <span>{booking.ride && new Date(booking.ride.date).toLocaleDateString()}</span>
+                  <span>{booking.seatsBooked} seat(s)</span>
+                  <span>Total: ₹{booking.totalPrice}</span>
+                  <span>Driver: {booking.ride?.driver?.name}</span>
+                  <span className={`${styles.badge} ${styles[booking.status]}`}>
+                    {booking.status}
+                  </span>
+                </div>
+                {booking.status === "confirmed" && (
+                  <button
+                    className={styles.cancelBtn}
+                    onClick={() => cancelBooking(booking._id)}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            ))}
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
